@@ -29,6 +29,39 @@ export type Course = {
   isBookmarked: boolean;
 };
 
+const CourseItem = React.memo(({ item, onPress, onToggleBookmark }: { 
+  item: Course; 
+  onPress: () => void; 
+  onToggleBookmark: (id: number) => void 
+}) => (
+  <TouchableOpacity
+    style={styles.card}
+    onPress={onPress}
+  >
+    <Image source={{ uri: item.thumbnail }} style={styles.thumbnail} />
+    <View style={styles.cardInfo}>
+      <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
+
+      <View style={styles.instructorRow}>
+        <Image source={{ uri: item.instructorAvatar }} style={styles.avatar} />
+        <Text style={styles.instructorName}>{item.instructorName}</Text>
+      </View>
+
+      <TouchableOpacity
+        style={styles.bookmarkButton}
+        onPress={() => onToggleBookmark(item.id)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <MaterialCommunityIcons
+          name={item.isBookmarked ? "bookmark" : "bookmark-outline"}
+          size={24}
+          color={item.isBookmarked ? "#7c3aed" : "#555"}
+        />
+      </TouchableOpacity>
+    </View>
+  </TouchableOpacity>
+), (prev, next) => prev.item.isBookmarked === next.item.isBookmarked);
+
 export default function CourseCatalogScreen() {
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
@@ -97,48 +130,27 @@ export default function CourseCatalogScreen() {
   };
 
   // Toggle Bookmark
-  const toggleBookmark = (id: number) => {
-    const updatedCourses = courses.map((c) =>
-      c.id === id ? { ...c, isBookmarked: !c.isBookmarked } : c
-    );
-    setCourses(updatedCourses);
-    // Also update filtered list
-    setFilteredCourses(
-      updatedCourses.filter((c) =>
-        c.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-    // TODO: Persist bookmarks locally using AsyncStorage
-  };
+  const toggleBookmark = useCallback((id: number) => {
+    setCourses((prevCourses) => {
+      const updatedCourses = prevCourses.map((c) =>
+        c.id === id ? { ...c, isBookmarked: !c.isBookmarked } : c
+      );
+      setFilteredCourses(
+        updatedCourses.filter((c) =>
+          c.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+      return updatedCourses;
+    });
+  }, [searchQuery]);
 
-  const renderCourseItem = ({ item }: { item: Course }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => router.push(`/course/${item.id}?data=${encodeURIComponent(JSON.stringify(item))}`)}
-    >
-      <Image source={{ uri: item.thumbnail }} style={styles.thumbnail} />
-      <View style={styles.cardInfo}>
-        <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
+  const handlePressCourse = useCallback((item: Course) => {
+    router.push(`/course/${item.id}?data=${encodeURIComponent(JSON.stringify(item))}` as any);
+  }, [router]);
 
-        <View style={styles.instructorRow}>
-          <Image source={{ uri: item.instructorAvatar }} style={styles.avatar} />
-          <Text style={styles.instructorName}>{item.instructorName}</Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.bookmarkButton}
-          onPress={() => toggleBookmark(item.id)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <MaterialCommunityIcons
-            name={item.isBookmarked ? "bookmark" : "bookmark-outline"}
-            size={24}
-            color={item.isBookmarked ? "#7c3aed" : "#555"}
-          />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderCourseItem = useCallback(({ item }: { item: Course }) => {
+    return <CourseItem item={item} onPress={() => handlePressCourse(item)} onToggleBookmark={toggleBookmark} />;
+  }, [handlePressCourse, toggleBookmark]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -166,6 +178,7 @@ export default function CourseCatalogScreen() {
           data={filteredCourses}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCourseItem}
+          getItemLayout={(data, index) => ({ length: 280, offset: 280 * index, index })}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           refreshControl={

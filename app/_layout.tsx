@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useNotifications } from '../src/hooks/useNotifications';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
@@ -16,6 +17,9 @@ const InitialLayout = () => {
   const { isLoggedIn, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Delay notification setup to avoid startup conflicts in Expo Go
+  const { triggerInstantNotification } = useNotifications(); 
 
   useEffect(() => {
     if (isLoading) return;

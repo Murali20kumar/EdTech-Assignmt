@@ -15,6 +15,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/context/AuthContext';
 import api from '@/src/services/api';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -30,6 +32,12 @@ export default function ProfileScreen() {
         loadUserData();
     }, []);
 
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [])
+    );
+
     const loadUserData = async () => {
         try {
             // 1. Fetch real user from API using our authenticated api instance
@@ -37,10 +45,16 @@ export default function ProfileScreen() {
             const currentUser = userResponse.data.data;
 
             // 2. Set the real user data (fallback to generated avatar if they don't have one)
+            let formattedName = currentUser.username || 'Learner';
+            if (formattedName.includes('@')) {
+                formattedName = formattedName.split('@')[0];
+            }
+            formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+
             setUser({
-                username: currentUser.username,
+                username: formattedName,
                 email: currentUser.email,
-                avatar: currentUser.avatar?.url || `https://ui-avatars.com/api/?name=${currentUser.username}&background=7c3aed&color=fff`
+                avatar: currentUser.avatar?.url || `https://ui-avatars.com/api/?name=${formattedName}&background=7c3aed&color=fff`
             });
 
             // 3. Load Bookmarks

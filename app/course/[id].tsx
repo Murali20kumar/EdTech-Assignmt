@@ -14,11 +14,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Course } from '../courses'; // Import the type from the catalog
+import { useNotifications } from '@/src/hooks/useNotifications';
 
 export default function CourseDetailScreen() {
     const { id, data } = useLocalSearchParams();
     const router = useRouter();
 
+    const { triggerInstantNotification } = useNotifications();
     const [course, setCourse] = useState<Course | null>(null);
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isEnrolled, setIsEnrolled] = useState(false);
@@ -39,7 +41,8 @@ export default function CourseDetailScreen() {
             const storedBookmarks = await AsyncStorage.getItem('bookmarks');
             if (storedBookmarks) {
                 const bookmarksArray = JSON.parse(storedBookmarks);
-                setIsBookmarked(bookmarksArray.includes(courseId));
+                // Consistency check: courseId can be string from route, ensure numeric search
+                setIsBookmarked(bookmarksArray.includes(Number(courseId)));
             }
         } catch (e) {
             console.error('Failed to read bookmarks:', e);
@@ -54,9 +57,16 @@ export default function CourseDetailScreen() {
             let bookmarksArray: number[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
 
             if (!isBookmarked) {
-                bookmarksArray.push(course.id);
+                const numericId = Number(course.id);
+                bookmarksArray.push(numericId);
+                if (bookmarksArray.length === 5) {
+                    triggerInstantNotification(
+                        "Super Scholar! 🌟",
+                        "You just bookmarked your 5th course! You are on fire."
+                    );
+                }
             } else {
-                bookmarksArray = bookmarksArray.filter(bId => bId !== course.id);
+                bookmarksArray = bookmarksArray.filter(bId => Number(bId) !== Number(course.id));
             }
 
             await AsyncStorage.setItem('bookmarks', JSON.stringify(bookmarksArray));
@@ -114,13 +124,20 @@ export default function CourseDetailScreen() {
                     {/* Placeholder for Modules */}
                     <Text style={styles.sectionTitle}>Course Content</Text>
                     {[1, 2, 3].map((num) => (
-                        <View key={num} style={styles.moduleItem}>
-                            <MaterialCommunityIcons name="play-circle-outline" size={28} color="#7c3aed" />
+                        <TouchableOpacity
+                            key={num}
+                            style={styles.moduleItem}
+                            onPress={() => router.push(`/course/webview?title=${encodeURIComponent('Module ' + num + ': AI Introduction')}` as any)}
+                        >
+                            <MaterialCommunityIcons name="play-circle" size={28} color="#7c3aed" />
                             <View style={styles.moduleText}>
-                                <Text style={styles.moduleTitle}>Module {num}: Introduction</Text>
+                                <Text style={styles.moduleTitle}>Module {num}: AI Introduction</Text>
                                 <Text style={styles.moduleDuration}>15 mins</Text>
                             </View>
-                        </View>
+                            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                                <MaterialCommunityIcons name="chevron-right" size={20} color="#ccc" />
+                            </View>
+                        </TouchableOpacity>
                     ))}
                 </View>
             </ScrollView>

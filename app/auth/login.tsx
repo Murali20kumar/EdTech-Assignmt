@@ -54,22 +54,30 @@ export default function LoginScreen() {
 
         setIsLoading(true);
         try {
-            const response = await api.post('/users/login', { email, password });
+            const userInput = email.trim().toLowerCase();
+            const payload = userInput.includes('@') 
+                ? { email: userInput, password } 
+                : { username: userInput, password };
+
+            const response = await api.post('/users/login', payload);
 
             const token = response.data?.data?.accessToken;
-            if (!token) throw new Error('Token not received from server');
+            const refreshToken = response.data?.data?.refreshToken;
+            if (!token || !refreshToken) throw new Error('Token not received from server');
 
             setEmail('');
             setPassword('');
-            await login(token);
+            await login(token, refreshToken);
             router.replace('/(tabs)');
         } catch (error: any) {
-            const errorMessage =
-                error.response?.data?.message ||
-                error.response?.data?.error ||
-                error.message ||
-                'An unexpected error occurred';
-            Alert.alert('Login Failed', errorMessage);
+            const status = error.response?.status;
+            const serverMessage = error.response?.data?.message || error.message || 'Unknown error';
+            const errorMessage = `Error ${status}: ${serverMessage}`;
+            
+            Alert.alert('Login Failed', errorMessage, [
+                { text: 'Try Again' },
+                { text: 'Register', onPress: () => router.replace('/auth/register') }
+            ]);
         } finally {
             setIsLoading(false);
         }

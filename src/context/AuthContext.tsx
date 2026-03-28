@@ -5,7 +5,7 @@ interface AuthContextData {
     token: string | null;
     isLoggedIn: boolean;
     isLoading: boolean;
-    login: (token: string) => Promise<void>;
+    login: (token: string, refreshToken: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -30,10 +30,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const login = async (newToken: string) => {
-        console.log(' TOKEN SAVED TO STORAGE:');
-        console.log(newToken);
-        await storage.setToken(newToken);
+    const login = async (newToken: string, refreshToken: string) => {
+        console.log(' TOKENS SAVED TO STORAGE');
+        await storage.setTokens(newToken, refreshToken);
         setToken(newToken);
     };
 

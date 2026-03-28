@@ -72,8 +72,8 @@ export default function RegisterScreen() {
         setIsLoading(true);
         try {
             const response = await api.post('/users/register', {
-                username,   // freeapi.app requires 'username' not 'name'
-                email,
+                username: username.trim().toLowerCase(),
+                email: email.trim().toLowerCase(),
                 password,
             });
 

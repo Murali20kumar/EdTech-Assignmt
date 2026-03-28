@@ -14,6 +14,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../src/context/AuthContext';
 import api from '@/src/services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 // ─── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({
@@ -65,12 +68,40 @@ export default function HomeScreen() {
     const router = useRouter();
     const { logout, token } = useAuth();
     const [displayName, setDisplayName] = useState('Learner');
+    const [counts, setCounts] = useState({ enrolled: 0, bookmarks: 0, completed: 0 });
+
+    useFocusEffect(
+        useCallback(() => {
+            const loadStats = async () => {
+                try {
+                    const storedBookmarks = await AsyncStorage.getItem('bookmarks');
+                    if (storedBookmarks) {
+                        const bookmarksArray = JSON.parse(storedBookmarks);
+                        setCounts(prev => ({ ...prev, bookmarks: bookmarksArray.length }));
+                    }
+                } catch (e) {
+                    console.error('Failed to load home stats', e);
+                }
+            };
+            loadStats();
+        }, [])
+    );
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
                 const userResponse = await api.get('/users/current-user');
-                setDisplayName(userResponse.data.data.username);
+                const userData = userResponse.data.data;
+                
+                // If username looks like an email, let's make it look like a real name
+                let name = userData.username || 'Learner';
+                if (name.includes('@')) {
+                    name = name.split('@')[0];
+                }
+                // Capitalize first letter
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+                
+                setDisplayName(name);
             } catch (error) {
                 console.error('Failed to load user name', error);
             }
@@ -134,11 +165,11 @@ export default function HomeScreen() {
 
                 {/* ── Stats Row ── */}
                 <View style={styles.statsRow}>
-                    <StatCard icon="book-open-outline" label="Enrolled" value="0" />
+                    <StatCard icon="book-open-outline" label="Enrolled" value={counts.enrolled.toString()} />
                     <View style={styles.statDivider} />
-                    <StatCard icon="bookmark-outline" label="Bookmarks" value="0" />
+                    <StatCard icon="bookmark-outline" label="Bookmarks" value={counts.bookmarks.toString()} />
                     <View style={styles.statDivider} />
-                    <StatCard icon="check-circle-outline" label="Completed" value="0" />
+                    <StatCard icon="check-circle-outline" label="Completed" value={counts.completed.toString()} />
                 </View>
 
                 {/* ── Section: Explore ── */}
@@ -154,7 +185,7 @@ export default function HomeScreen() {
                     icon="bookmark-multiple-outline"
                     label="My Bookmarks"
                     sublabel="Courses you saved"
-                    onPress={() => router.push('/(tabs)/bookmarks')}
+                    onPress={() => router.push('/(tabs)/explore')}
                 />
                 <ActionCard
                     icon="account-outline"

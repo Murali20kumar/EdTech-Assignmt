@@ -2,9 +2,27 @@ import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TOKEN_KEY = 'auth_token';
-
+const REFRESH_TOKEN_KEY = 'refresh_token';
 // SecureStore → for sensitive data (token)
 export const storage = {
+    setTokens: async (token: string, refreshToken: string): Promise<boolean> => {
+        try {
+            await SecureStore.setItemAsync(TOKEN_KEY, token);
+            await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+            return true;
+        } catch (error) {
+            console.error('Error saving tokens', error);
+            return false;
+        }
+    },
+    getRefreshToken: async (): Promise<string | null> => {
+        try {
+            return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+        } catch (error) {
+            console.error('Error getting refresh token', error);
+            return null;
+        }
+    },
     setToken: async (token: string): Promise<boolean> => {
         try {
             await SecureStore.setItemAsync(TOKEN_KEY, token);
@@ -27,6 +45,7 @@ export const storage = {
     removeToken: async (): Promise<boolean> => {
         try {
             await SecureStore.deleteItemAsync(TOKEN_KEY);
+            await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
             return true;
         } catch (error) {
             console.error('Error removing token', error);
