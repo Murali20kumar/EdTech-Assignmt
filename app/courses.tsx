@@ -12,8 +12,10 @@ import {
   SafeAreaView
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import api from '../src/services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNotifications } from '@/src/hooks/useNotifications';
 
 // Types
 type Product = { id: number; title: string; description: string; images: string[] };
@@ -69,19 +71,51 @@ export default function CourseCatalogScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { triggerInstantNotification } = useNotifications();
+
+
+  useFocusEffect(
+    useCallback(() => {
+      // Re-hydrate bookmark status whenever we return to this screen!
+      syncBookmarks();
+    }, [courses])
+  );
+
+  const syncBookmarks = async () => {
+    try {
+      const storedBookmarks = await AsyncStorage.getItem('bookmarks');
+      if (!storedBookmarks) return;
+      
+      const bookmarksArray: number[] = JSON.parse(storedBookmarks);
+      setCourses(currentCourses => currentCourses.map(c => ({
+          ...c,
+          isBookmarked: bookmarksArray.includes(Number(c.id))
+      })));
+      setFilteredCourses(currentFiltered => currentFiltered.map(c => ({
+          ...c,
+          isBookmarked: bookmarksArray.includes(Number(c.id))
+      })));
+    } catch (e) {
+      console.error('Failed to sync bookmarks:', e);
+    }
+  };
 
   // Fetch data from APIs
   const fetchData = async () => {
     try {
-      // Fetch random products (treat as courses)
+      // 1. Fetch random products (treat as courses)
       const productsRes = await api.get('/public/randomproducts?page=1&limit=20');
       const productsData: Product[] = productsRes.data.data.data;
 
-      // Fetch random users (treat as instructors)
+      // 2. Fetch random users (treat as instructors)
       const usersRes = await api.get('/public/randomusers?page=1&limit=20');
       const usersData: User[] = usersRes.data.data.data;
 
-      // Map them together
+      // 3. Check existing bookmarks in permanent storage
+      const storedBookmarks = await AsyncStorage.getItem('bookmarks');
+      const bookmarksArray: number[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
+
+      // 4. Map them together and Hydrate the UI Status
       const mappedCourses: Course[] = productsData.map((prod, index) => {
         const instructor = usersData[index % usersData.length];
         return {
@@ -91,7 +125,7 @@ export default function CourseCatalogScreen() {
           thumbnail: prod.images[0] || 'https://via.placeholder.com/150',
           instructorName: `${instructor.name.first} ${instructor.name.last}`,
           instructorAvatar: instructor.picture.thumbnail,
-          isBookmarked: false, // Default
+          isBookmarked: bookmarksArray.includes(Number(prod.id)), // Keep your choices!
         };
       });
 
@@ -129,20 +163,45 @@ export default function CourseCatalogScreen() {
     }
   };
 
-  // Toggle Bookmark
-  const toggleBookmark = useCallback((id: number) => {
-    setCourses((prevCourses) => {
-      const updatedCourses = prevCourses.map((c) =>
-        c.id === id ? { ...c, isBookmarked: !c.isBookmarked } : c
-      );
-      setFilteredCourses(
-        updatedCourses.filter((c) =>
-          c.title.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-      return updatedCourses;
-    });
-  }, [searchQuery]);
+  // Toggle Bookmark (Persistent)
+  const toggleBookmark = useCallback(async (id: number) => {
+    try {
+      // 1. Update UI State immediately
+      setCourses((prevCourses) => {
+        const updatedCourses = prevCourses.map((c) =>
+          c.id === id ? { ...c, isBookmarked: !c.isBookmarked } : c
+        );
+        setFilteredCourses(
+          updatedCourses.filter((c) =>
+            c.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        );
+        return updatedCourses;
+      });
+
+      // 2. Save to AsyncStorage
+      const storedBookmarks = await AsyncStorage.getItem('bookmarks');
+      let bookmarksArray: number[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
+      const isAlreadyBookmarked = bookmarksArray.includes(Number(id));
+
+      if (!isAlreadyBookmarked) {
+        bookmarksArray.push(Number(id));
+        // Special task: 5 bookmarks = alert
+        if (bookmarksArray.length === 5) {
+          triggerInstantNotification(
+            "Super Scholar! 🌟",
+            "You just bookmarked your 5th course! You are on fire."
+          );
+        }
+      } else {
+        bookmarksArray = bookmarksArray.filter(bId => Number(bId) !== Number(id));
+      }
+
+      await AsyncStorage.setItem('bookmarks', JSON.stringify(bookmarksArray));
+    } catch (e) {
+      console.error('Failed to toggle bookmark persistently:', e);
+    }
+  }, [searchQuery, triggerInstantNotification]);
 
   const handlePressCourse = useCallback((item: Course) => {
     router.push(`/course/${item.id}?data=${encodeURIComponent(JSON.stringify(item))}` as any);
