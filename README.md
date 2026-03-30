@@ -1,13 +1,8 @@
 # AI TV - Premium EdTech Learning Platform
 
-<<<<<<< HEAD
-![AI TV Logo](file:///C:/Users/p%20muralaikumar/.gemini/antigravity/brain/cc4bca5b-d361-4e88-ba5b-5f496ccfa196/media__1774879016409.png)
-
-A high-performance, modern React Native application built with **Expo SDK 54** for the "AI TV" EdTech Developer Assignment. This app features a premium dark/light adaptive UI, seamless authentication, and course discovery with offline persistence.
-=======
 
 A high-performance, modern React Native application built with **Expo SDK 54** for the "AI TV" EdTech Developer Assignment. This app features a premium light adaptive UI, seamless authentication, and course discovery with offline persistence.
->>>>>>> 1e2656aadc36a8c55e667651a448b3c3eddb2323
+
 
 ---
 
@@ -59,28 +54,6 @@ A high-performance, modern React Native application built with **Expo SDK 54** f
 
 ---
 
-## 3. Visual Gallery (Main Screens)
-
-| Authentication | Home Dashboard | Course Catalog |
-| :---: | :---: | :---: |
-| ![Auth](file:///C:/Users/p%20muralaikumar/.gemini/antigravity/brain/cc4bca5b-d361-4e88-ba5b-5f496ccfa196/media__1774681076489.jpg) | ![Home](file:///C:/Users/p%20muralaikumar/.gemini/antigravity/brain/cc4bca5b-d361-4e88-ba5b-5f496ccfa196/media__1774682289950.jpg) | ![Catalog](file:///C:/Users/p%20muralaikumar/.gemini/antigravity/brain/cc4bca5b-d361-4e88-ba5b-5f496ccfa196/media__1774879016409.png) |
-
----
-
-## 4. Demo Video
-A comprehensive 3-5 minute walkthrough of the application:
-- [Watch the Demo Video (Placeholder Link)](#)
-- **Key Features Demonstrated**:
-  - UI Transitions & Animations.
-  - Social-style Authentication Flow.
-  - Bookmark & Progress Persistence (Offline Logic).
-
----
-
-## 5. APK Build & Instructions
-
-### Download APK
-- **Development Build**: [Download AI TV v1.0.0 APK](file:///d:/MyProject/EdTech/Docs/application-49684613-48d6-448f-9afc-c345de91bd35.apk)
 
 ### Build Instructions (EAS)
 To generate a new build from source:
