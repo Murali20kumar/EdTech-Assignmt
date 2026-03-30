@@ -1,8 +1,13 @@
 # AI TV - Premium EdTech Learning Platform
 
+<<<<<<< HEAD
 ![AI TV Logo](file:///C:/Users/p%20muralaikumar/.gemini/antigravity/brain/cc4bca5b-d361-4e88-ba5b-5f496ccfa196/media__1774879016409.png)
 
 A high-performance, modern React Native application built with **Expo SDK 54** for the "AI TV" EdTech Developer Assignment. This app features a premium dark/light adaptive UI, seamless authentication, and course discovery with offline persistence.
+=======
+
+A high-performance, modern React Native application built with **Expo SDK 54** for the "AI TV" EdTech Developer Assignment. This app features a premium light adaptive UI, seamless authentication, and course discovery with offline persistence.
+>>>>>>> 1e2656aadc36a8c55e667651a448b3c3eddb2323
 
 ---
 
@@ -50,6 +55,7 @@ A high-performance, modern React Native application built with **Expo SDK 54** f
 ### Known Issues & Limitations
 - **Offline Mode**: While core app state (stats/bookmarks) is persisted offline, the external course catalog requires a network connection to fetch new data from the API.
 - **Mock Data**: Instructor profiles are procedurally matched to products from the public API for demonstration purposes.
+<<<<<<< HEAD
 
 ---
 
@@ -82,3 +88,5 @@ To generate a new build from source:
 2. **Login to Expo**: `eas login`
 3. **Configure Build**: `eas build:configure`
 4. **Android APK**: `eas build -p android --profile preview`
+=======
+>>>>>>> 1e2656aadc36a8c55e667651a448b3c3eddb2323
