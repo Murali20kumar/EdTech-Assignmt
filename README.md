@@ -1,50 +1,51 @@
-# Welcome to your Expo app 👋
+# AI TV - Premium EdTech Learning Platform
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+A high-performance, modern React Native application built with **Expo SDK 54** for the "AI TV" EdTech Developer Assignment. This app features a premium light adaptive UI, seamless authentication, and course discovery with offline persistence.
 
-1. Install dependencies
+---
 
+## 1. Source Code & Quality Standards
+
+- **Git Hygiene**: Organized with a clean, logical commit history.
+- **Folder Structure**:
+  - `app/`: File-based routing (Expo Router) for screens and navigation layouts.
+  - `src/`: Core logic, including Context API, custom hooks, and API services.
+  - `components/`: Atomic UI components, including themed views and custom inputs.
+  - `constants/`: Design tokens, colors, and global theme configurations.
+  - `assets/`: Optimized branding assets (Logo, Splash Screen).
+
+---
+
+## 2. Documentation
+
+### Setup Instructions
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd Assignmt
+   ```
+2. **Install Dependencies**:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+3. **Start Development Server**:
    ```bash
    npx expo start
    ```
+4. **Run on Android**: Press `a` in the terminal (requires Android Studio/Emulator).
 
-In the output, you'll find options to open the app in a
+### Environment Variables & API
+- **API Base URL**: `https://api.freeapi.app/api/v1`
+- **Auth Endpoint**: `/users/login` | `/users/register`
+- **Data Endpoint**: `/public/randomproducts` | `/public/randomusers`
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Key Architectural Decisions
+- **Expo Router**: Implemented for robust, file-based navigation, enabling deep-linking and a clean screen hierarchy.
+- **Context API & SecureStore**: Authentication state is managed via `AuthContext`, with JWT tokens stored securely using `expo-secure-store` to maintain sessions across reboots.
+- **AsyncStorage Persistence**: User preferences, bookmarks, and learning statistics are persisted locally to ensure a seamless "instant-load" experience.
+- **Axios Interceptors**: Global API client configured with interceptors to automatically attach Bearer tokens and handle refresh logic.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Known Issues & Limitations
+- **Offline Mode**: While core app state (stats/bookmarks) is persisted offline, the external course catalog requires a network connection to fetch new data from the API.
+- **Mock Data**: Instructor profiles are procedurally matched to products from the public API for demonstration purposes.
