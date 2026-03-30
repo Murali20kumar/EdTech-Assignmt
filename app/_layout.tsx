@@ -9,16 +9,11 @@ import { useNotifications } from '../src/hooks/useNotifications';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 
-// export const unstable_settings = {
-//   anchor: '(tabs)',
-// };
-
 const InitialLayout = () => {
   const { isLoggedIn, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
-  // Delay notification setup to avoid startup conflicts in Expo Go
   const { triggerInstantNotification } = useNotifications(); 
 
   useEffect(() => {

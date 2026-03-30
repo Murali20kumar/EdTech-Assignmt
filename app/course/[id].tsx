@@ -13,7 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Course } from '../courses'; // Import the type from the catalog
+import { Course } from '../courses';
 import { useNotifications } from '@/src/hooks/useNotifications';
 
 export default function CourseDetailScreen() {
@@ -25,7 +25,6 @@ export default function CourseDetailScreen() {
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isEnrolled, setIsEnrolled] = useState(false);
 
-    // Fade animation setup for enroll success
     const [fadeAnim] = useState(new Animated.Value(0));
 
     useEffect(() => {
@@ -41,7 +40,6 @@ export default function CourseDetailScreen() {
             const storedBookmarks = await AsyncStorage.getItem('bookmarks');
             if (storedBookmarks) {
                 const bookmarksArray = JSON.parse(storedBookmarks);
-                // Consistency check: courseId can be string from route, ensure numeric search
                 setIsBookmarked(bookmarksArray.includes(Number(courseId)));
             }
         } catch (e) {
@@ -59,11 +57,14 @@ export default function CourseDetailScreen() {
             if (!isBookmarked) {
                 const numericId = Number(course.id);
                 bookmarksArray.push(numericId);
-                if (bookmarksArray.length === 5) {
+                
+                const alertFired = await AsyncStorage.getItem('alert_fired');
+                if (bookmarksArray.length >= 5 && alertFired !== 'true') {
                     triggerInstantNotification(
                         "Super Scholar! 🌟",
-                        "You just bookmarked your 5th course! You are on fire."
+                        "You just bookmarked 5 courses! Your learning journey is accelerating."
                     );
+                    await AsyncStorage.setItem('alert_fired', 'true');
                 }
             } else {
                 bookmarksArray = bookmarksArray.filter(bId => Number(bId) !== Number(course.id));
@@ -72,7 +73,6 @@ export default function CourseDetailScreen() {
             await AsyncStorage.setItem('bookmarks', JSON.stringify(bookmarksArray));
         } catch (e) {
             console.error('Failed to save bookmark:', e);
-            // Revert on error
             setIsBookmarked(isBookmarked);
         }
     };
@@ -91,7 +91,6 @@ export default function CourseDetailScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView bounces={false} style={{ flex: 1 }}>
-                {/* Header Image */}
                 <View style={styles.imageContainer}>
                     <Image source={{ uri: course.thumbnail }} style={styles.heroImage} />
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -106,7 +105,6 @@ export default function CourseDetailScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Content */}
                 <View style={styles.content}>
                     <Text style={styles.title}>{course.title}</Text>
 
@@ -120,8 +118,6 @@ export default function CourseDetailScreen() {
 
                     <Text style={styles.sectionTitle}>About this course</Text>
                     <Text style={styles.description}>{course.description}</Text>
-
-                    {/* Placeholder for Modules */}
                     <Text style={styles.sectionTitle}>Course Content</Text>
                     {[1, 2, 3].map((num) => (
                         <TouchableOpacity
@@ -142,7 +138,6 @@ export default function CourseDetailScreen() {
                 </View>
             </ScrollView>
 
-            {/* Bottom Action Bar */}
             <View style={styles.bottomBar}>
                 {isEnrolled ? (
                     <Animated.View style={[styles.successBanner, { opacity: fadeAnim }]}>

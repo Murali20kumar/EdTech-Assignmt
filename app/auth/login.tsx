@@ -28,7 +28,6 @@ export default function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
 
-    // Animated values for button press
     const buttonScale = useRef(new Animated.Value(1)).current;
 
     const animateButtonIn = () => {
@@ -85,7 +84,6 @@ export default function LoginScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Subtle background accent */}
             <View style={styles.accentTopRight} />
             <View style={styles.accentBottomLeft} />
 
@@ -93,7 +91,6 @@ export default function LoginScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.inner}
             >
-                {/* Header */}
                 <View style={styles.headerBlock}>
                     <View style={styles.badgeRow}>
                         <View style={styles.badge}>
@@ -104,9 +101,7 @@ export default function LoginScreen() {
                     <Text style={styles.subtitle}>Sign in to continue your learning journey</Text>
                 </View>
 
-                {/* Form */}
                 <View style={styles.form}>
-                    {/* Email */}
                     <View style={styles.fieldWrapper}>
                         <Text style={styles.label}>EMAIL</Text>
                         <View style={[
@@ -133,7 +128,6 @@ export default function LoginScreen() {
                         </View>
                     </View>
 
-                    {/* Password */}
                     <View style={styles.fieldWrapper}>
                         <Text style={styles.label}>PASSWORD</Text>
                         <View style={[
@@ -169,7 +163,6 @@ export default function LoginScreen() {
                         </View>
                     </View>
 
-                    {/* Login Button */}
                     <Animated.View style={{ transform: [{ scale: buttonScale }], marginTop: 8 }}>
                         <TouchableOpacity
                             onPressIn={animateButtonIn}
@@ -194,7 +187,6 @@ export default function LoginScreen() {
                     </Animated.View>
                 </View>
 
-                {/* Footer */}
                 <View style={styles.footer}>
                     <View style={styles.dividerRow}>
                         <View style={styles.divider} />
@@ -219,7 +211,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f7f5ff',
     },
-    // Decorative background accents
     accentTopRight: {
         position: 'absolute',
         top: -80,
@@ -246,7 +237,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 
-    // Header
     headerBlock: {
         marginBottom: 48,
     },
@@ -281,7 +271,6 @@ const styles = StyleSheet.create({
         letterSpacing: 0.2,
     },
 
-    // Form
     form: {
         gap: 20,
     },
@@ -323,7 +312,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
 
-    // Button
     loginButton: {
         height: 56,
         borderRadius: 12,
@@ -337,7 +325,6 @@ const styles = StyleSheet.create({
         letterSpacing: 3,
     },
 
-    // Footer
     footer: {
         marginTop: 48,
         gap: 20,

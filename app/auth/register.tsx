@@ -32,7 +32,6 @@ export default function RegisterScreen() {
         'username' | 'email' | 'password' | 'confirmPassword' | null
     >(null);
 
-    // Animated value for button press
     const buttonScale = useRef(new Animated.Value(1)).current;
 
     const animateButtonIn = () => {
@@ -51,7 +50,6 @@ export default function RegisterScreen() {
     };
 
     const handleRegister = async () => {
-        // Validations
         if (!username || !email || !password || !confirmPassword) {
             Alert.alert('Missing Fields', 'Please fill in all fields.');
             return;
@@ -98,7 +96,6 @@ export default function RegisterScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Decorative background accents — same as login */}
             <View style={styles.accentTopRight} />
             <View style={styles.accentBottomLeft} />
 
@@ -111,7 +108,6 @@ export default function RegisterScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    {/* Back Button */}
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => router.back()}
@@ -119,7 +115,6 @@ export default function RegisterScreen() {
                         <MaterialCommunityIcons name="arrow-left" size={20} color="#a78bfa" />
                     </TouchableOpacity>
 
-                    {/* Header */}
                     <View style={styles.headerBlock}>
                         <View style={styles.badgeRow}>
                             <View style={styles.badge}>
@@ -132,10 +127,8 @@ export default function RegisterScreen() {
                         </Text>
                     </View>
 
-                    {/* Form */}
                     <View style={styles.form}>
 
-                        {/* Username */}
                         <View style={styles.fieldWrapper}>
                             <Text style={styles.label}>USERNAME</Text>
                             <View style={[
@@ -161,7 +154,6 @@ export default function RegisterScreen() {
                             </View>
                         </View>
 
-                        {/* Email */}
                         <View style={styles.fieldWrapper}>
                             <Text style={styles.label}>EMAIL</Text>
                             <View style={[
@@ -188,7 +180,6 @@ export default function RegisterScreen() {
                             </View>
                         </View>
 
-                        {/* Password */}
                         <View style={styles.fieldWrapper}>
                             <Text style={styles.label}>PASSWORD</Text>
                             <View style={[
@@ -224,13 +215,11 @@ export default function RegisterScreen() {
                             </View>
                         </View>
 
-                        {/* Confirm Password */}
                         <View style={styles.fieldWrapper}>
                             <Text style={styles.label}>CONFIRM PASSWORD</Text>
                             <View style={[
                                 styles.inputRow,
                                 focusedField === 'confirmPassword' && styles.inputRowFocused,
-                                // Red border hint if passwords don't match while typing
                                 confirmPassword.length > 0 &&
                                 password !== confirmPassword &&
                                 styles.inputRowError,
@@ -268,13 +257,11 @@ export default function RegisterScreen() {
                                     />
                                 </TouchableOpacity>
                             </View>
-                            {/* Inline mismatch hint */}
                             {confirmPassword.length > 0 && password !== confirmPassword && (
                                 <Text style={styles.errorHint}>Passwords do not match</Text>
                             )}
                         </View>
 
-                        {/* Register Button */}
                         <Animated.View style={{ transform: [{ scale: buttonScale }], marginTop: 8 }}>
                             <TouchableOpacity
                                 onPressIn={animateButtonIn}
@@ -299,7 +286,6 @@ export default function RegisterScreen() {
                         </Animated.View>
                     </View>
 
-                    {/* Footer */}
                     <View style={styles.footer}>
                         <View style={styles.dividerRow}>
                             <View style={styles.divider} />
@@ -326,7 +312,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#f7f5ff',
     },
 
-    // Decorative accents — mirrored from login
     accentTopRight: {
         position: 'absolute',
         top: -80,
@@ -355,7 +340,6 @@ const styles = StyleSheet.create({
         paddingTop: 16,
     },
 
-    // Back button
     backButton: {
         width: 40,
         height: 40,
@@ -369,7 +353,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
 
-    // Header
     headerBlock: {
         marginBottom: 40,
     },
@@ -393,18 +376,17 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 44,
         fontWeight: '900',
-        color: '#f5f5f5',
+        color: '#1e0a4a',
         lineHeight: 48,
         letterSpacing: -1,
     },
     subtitle: {
-        color: '#555',
+        color: '#9ca3af',
         fontSize: 15,
         marginTop: 12,
         letterSpacing: 0.2,
     },
 
-    // Form
     form: {
         gap: 20,
     },
@@ -412,7 +394,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     label: {
-        color: '#444',
+        color: '#9ca3af',
         fontSize: 11,
         fontWeight: '700',
         letterSpacing: 2,
@@ -420,16 +402,21 @@ const styles = StyleSheet.create({
     inputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#111',
+        backgroundColor: '#fff',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#1e1e1e',
+        borderWidth: 1.5,
+        borderColor: '#ede9ff',
         paddingHorizontal: 16,
         height: 56,
+        shadowColor: '#7c3aed',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
+        elevation: 1,
     },
     inputRowFocused: {
         borderColor: '#7c3aed',
-        backgroundColor: '#0f0f0f',
+        backgroundColor: '#fbfaff',
     },
     inputRowError: {
         borderColor: '#ef4444',
@@ -440,8 +427,9 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        color: '#f5f5f5',
+        color: '#1e0a4a',
         fontSize: 15,
+        fontWeight: '500',
     },
     errorHint: {
         color: '#ef4444',
@@ -450,7 +438,6 @@ const styles = StyleSheet.create({
         marginLeft: 4,
     },
 
-    // Register button
     registerButton: {
         height: 56,
         borderRadius: 12,
@@ -464,7 +451,6 @@ const styles = StyleSheet.create({
         letterSpacing: 3,
     },
 
-    // Footer
     footer: {
         marginTop: 40,
         gap: 20,

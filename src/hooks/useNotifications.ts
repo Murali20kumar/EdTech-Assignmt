@@ -3,17 +3,11 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 
-/**
- * LAZY LOADED & SAFE NOTIFICATIONS
- * SDK 54 Expo Go crashes if 'expo-notifications' is imported.
- * We now check if we are in 'StoreClient' (Expo Go) and skip the library entirely if so.
- */
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 export const useNotifications = () => {
     useEffect(() => {
         if (isExpoGo) {
-            console.log('[Safe Mode] Skipping Notifications setup for Expo Go');
             return;
         }
 
@@ -72,7 +66,7 @@ export const useNotifications = () => {
                 },
                 trigger: {
                     type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: 60 * 60 * 24, // 24 Hours
+                    seconds: 60 * 60 * 24,
                     repeats: false
                 },
             });
@@ -94,7 +88,6 @@ export const useNotifications = () => {
             }
         }
         
-        // ALWAYS show a standard Alert fallback so the user sees something happened!
         const { Alert } = require('react-native');
         Alert.alert(title, body);
     };

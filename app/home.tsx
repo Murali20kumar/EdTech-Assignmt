@@ -18,7 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
-// ─── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({
     icon,
     label,
@@ -37,7 +36,6 @@ function StatCard({
     );
 }
 
-// ─── Action Card ───────────────────────────────────────────────────────────────
 function ActionCard({
     icon,
     label,
@@ -63,7 +61,6 @@ function ActionCard({
     );
 }
 
-// ─── Main Screen ───────────────────────────────────────────────────────────────
 export default function HomeScreen() {
     const router = useRouter();
     const { logout, token } = useAuth();
@@ -92,21 +89,19 @@ export default function HomeScreen() {
             try {
                 const userResponse = await api.get('/users/current-user');
                 const userData = userResponse.data.data;
-                
-                // If username looks like an email, let's make it look like a real name
+
                 let name = userData.username || 'Learner';
                 if (name.includes('@')) {
                     name = name.split('@')[0];
                 }
-                // Capitalize first letter
                 name = name.charAt(0).toUpperCase() + name.slice(1);
-                
+
                 setDisplayName(name);
             } catch (error) {
                 console.error('Failed to load user name', error);
             }
         };
-        
+
         fetchUserData();
     }, []);
 
@@ -119,7 +114,6 @@ export default function HomeScreen() {
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#f7f5ff" />
 
-            {/* Decorative accents */}
             <View style={styles.accentTopRight} />
             <View style={styles.accentBottomLeft} />
 
@@ -127,7 +121,6 @@ export default function HomeScreen() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {/* ── Header ── */}
                 <View style={styles.header}>
                     <View>
                         <Text style={styles.headerGreeting}>Good morning,</Text>
@@ -138,7 +131,6 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* ── Hero Banner ── */}
                 <LinearGradient
                     colors={['#3b1fa3', '#7c3aed']}
                     start={{ x: 0, y: 0 }}
@@ -148,7 +140,7 @@ export default function HomeScreen() {
                     <View style={styles.heroTextBlock}>
                         <Text style={styles.heroEyebrow}>CONTINUE LEARNING</Text>
                         <Text style={styles.heroTitle}>AI Fundamentals</Text>
-                        <Text style={styles.heroSubtitle}>Pick up where you left off</Text>
+                        <Text style={styles.heroSubtitle}>Welcome back, Scholar! 🎓</Text>
                     </View>
                     <View style={styles.heroIconBox}>
                         <MaterialCommunityIcons
@@ -163,7 +155,6 @@ export default function HomeScreen() {
                     <Text style={styles.progressLabel}>40% complete</Text>
                 </LinearGradient>
 
-                {/* ── Stats Row ── */}
                 <View style={styles.statsRow}>
                     <StatCard icon="book-open-outline" label="Enrolled" value={counts.enrolled.toString()} />
                     <View style={styles.statDivider} />
@@ -172,7 +163,6 @@ export default function HomeScreen() {
                     <StatCard icon="check-circle-outline" label="Completed" value={counts.completed.toString()} />
                 </View>
 
-                {/* ── Section: Explore ── */}
                 <Text style={styles.sectionTitle}>EXPLORE</Text>
 
                 <ActionCard
@@ -194,26 +184,6 @@ export default function HomeScreen() {
                     onPress={() => router.push('/profile')}
                 />
 
-                {/* ── Dev Token — remove before final submission ── */}
-                {token && (
-                    <View style={styles.devCard}>
-                        <View style={styles.devCardHeader}>
-                            <MaterialCommunityIcons
-                                name="shield-key-outline"
-                                size={13}
-                                color="#b0a8d0"
-                            />
-                            <Text style={styles.devCardTitle}>ACTIVE SESSION TOKEN</Text>
-                        </View>
-                        <Text
-                            style={styles.devCardValue}
-                            numberOfLines={1}
-                            ellipsizeMode="middle"
-                        >
-                            {token}
-                        </Text>
-                    </View>
-                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -249,12 +219,11 @@ const styles = StyleSheet.create({
     },
 
     scrollContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 48,
-        paddingTop: 16,
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 40,
     },
 
-    // Header
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -290,7 +259,6 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
 
-    // Hero Banner
     heroBanner: {
         borderRadius: 20,
         padding: 24,
@@ -344,7 +312,6 @@ const styles = StyleSheet.create({
         marginTop: 6,
     },
 
-    // Stats
     statsRow: {
         flexDirection: 'row',
         backgroundColor: '#fff',
@@ -381,7 +348,6 @@ const styles = StyleSheet.create({
         letterSpacing: 0.3,
     },
 
-    // Section title
     sectionTitle: {
         color: '#b0a8d0',
         fontSize: 11,
@@ -390,7 +356,6 @@ const styles = StyleSheet.create({
         marginBottom: 14,
     },
 
-    // Action cards
     actionCard: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -424,33 +389,5 @@ const styles = StyleSheet.create({
         color: '#9ca3af',
         fontSize: 12,
         marginTop: 2,
-    },
-
-    // Dev token card
-    devCard: {
-        marginTop: 32,
-        padding: 14,
-        backgroundColor: '#faf9ff',
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#ede9ff',
-        borderStyle: 'dashed',
-    },
-    devCardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 8,
-    },
-    devCardTitle: {
-        color: '#b0a8d0',
-        fontSize: 10,
-        fontWeight: '700',
-        letterSpacing: 1.5,
-    },
-    devCardValue: {
-        color: '#b0a8d0',
-        fontSize: 12,
-        fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
     },
 });

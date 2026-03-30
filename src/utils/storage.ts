@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
-// SecureStore → for sensitive data (token)
 export const storage = {
     setTokens: async (token: string, refreshToken: string): Promise<boolean> => {
         try {
@@ -54,7 +53,6 @@ export const storage = {
     }
 };
 
-// AsyncStorage → for non-sensitive app data (bookmarks, preferences)
 export const appStorage = {
     setItem: async (key: string, value: string): Promise<boolean> => {
         try {

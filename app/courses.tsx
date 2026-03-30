@@ -17,7 +17,6 @@ import api from '../src/services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNotifications } from '@/src/hooks/useNotifications';
 
-// Types
 type Product = { id: number; title: string; description: string; images: string[] };
 type User = { id: number; name: { first: string; last: string }; picture: { thumbnail: string } };
 
@@ -76,7 +75,6 @@ export default function CourseCatalogScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // Re-hydrate bookmark status whenever we return to this screen!
       syncBookmarks();
     }, [courses])
   );
@@ -100,22 +98,17 @@ export default function CourseCatalogScreen() {
     }
   };
 
-  // Fetch data from APIs
   const fetchData = async () => {
     try {
-      // 1. Fetch random products (treat as courses)
       const productsRes = await api.get('/public/randomproducts?page=1&limit=20');
       const productsData: Product[] = productsRes.data.data.data;
 
-      // 2. Fetch random users (treat as instructors)
       const usersRes = await api.get('/public/randomusers?page=1&limit=20');
       const usersData: User[] = usersRes.data.data.data;
 
-      // 3. Check existing bookmarks in permanent storage
       const storedBookmarks = await AsyncStorage.getItem('bookmarks');
       const bookmarksArray: number[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
 
-      // 4. Map them together and Hydrate the UI Status
       const mappedCourses: Course[] = productsData.map((prod, index) => {
         const instructor = usersData[index % usersData.length];
         return {
@@ -125,7 +118,7 @@ export default function CourseCatalogScreen() {
           thumbnail: prod.images[0] || 'https://via.placeholder.com/150',
           instructorName: `${instructor.name.first} ${instructor.name.last}`,
           instructorAvatar: instructor.picture.thumbnail,
-          isBookmarked: bookmarksArray.includes(Number(prod.id)), // Keep your choices!
+          isBookmarked: bookmarksArray.includes(Number(prod.id)),
         };
       });
 
@@ -143,14 +136,12 @@ export default function CourseCatalogScreen() {
     fetchData();
   }, []);
 
-  // Handle Pull to Refresh
   const onRefresh = useCallback(() => {
     setIsRefreshing(true);
     setSearchQuery('');
     fetchData();
   }, []);
 
-  // Handle Search
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text) {
@@ -163,10 +154,8 @@ export default function CourseCatalogScreen() {
     }
   };
 
-  // Toggle Bookmark (Persistent)
   const toggleBookmark = useCallback(async (id: number) => {
     try {
-      // 1. Update UI State immediately
       setCourses((prevCourses) => {
         const updatedCourses = prevCourses.map((c) =>
           c.id === id ? { ...c, isBookmarked: !c.isBookmarked } : c
@@ -179,19 +168,20 @@ export default function CourseCatalogScreen() {
         return updatedCourses;
       });
 
-      // 2. Save to AsyncStorage
       const storedBookmarks = await AsyncStorage.getItem('bookmarks');
       let bookmarksArray: number[] = storedBookmarks ? JSON.parse(storedBookmarks) : [];
       const isAlreadyBookmarked = bookmarksArray.includes(Number(id));
 
       if (!isAlreadyBookmarked) {
         bookmarksArray.push(Number(id));
-        // Special task: 5 bookmarks = alert
-        if (bookmarksArray.length === 5) {
+        
+        const alertFired = await AsyncStorage.getItem('alert_fired');
+        if (bookmarksArray.length >= 5 && alertFired !== 'true') {
           triggerInstantNotification(
             "Super Scholar! 🌟",
-            "You just bookmarked your 5th course! You are on fire."
+            "You just bookmarked 5 courses! Your learning journey is accelerating."
           );
+          await AsyncStorage.setItem('alert_fired', 'true');
         }
       } else {
         bookmarksArray = bookmarksArray.filter(bId => Number(bId) !== Number(id));
@@ -275,7 +265,6 @@ const styles = StyleSheet.create({
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyText: { textAlign: 'center', marginTop: 50, color: '#888', fontSize: 16 },
 
-  // Card Styles
   card: {
     backgroundColor: '#fff',
     borderRadius: 16,

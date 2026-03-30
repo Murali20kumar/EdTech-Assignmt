@@ -22,13 +22,15 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { logout } = useAuth();
 
-
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState({ username: 'Learner', email: 'student@example.com', avatar: 'https://ui-avatars.com/api/?name=AI+Learner&background=7c3aed&color=fff' });
+    const [user, setUser] = useState({ 
+        username: 'Learner', 
+        email: '...', 
+        avatar: 'https://ui-avatars.com/api/?name=AI+Learner&background=7c3aed&color=fff' 
+    });
     const [stats, setStats] = useState({ enrolled: 1, completed: 0, bookmarks: 0 });
 
     useEffect(() => {
-        // Here we simulate fetching the user's details and saved data
         loadUserData();
     }, []);
 
@@ -40,11 +42,17 @@ export default function ProfileScreen() {
 
     const loadUserData = async () => {
         try {
-            // 1. Fetch real user from API using our authenticated api instance
+            const storedBookmarks = await AsyncStorage.getItem('bookmarks');
+            const bookmarksArray = storedBookmarks ? JSON.parse(storedBookmarks) : [];
+            setStats(prev => ({ ...prev, bookmarks: bookmarksArray.length }));
+        } catch (e) {
+            console.error('Local bookmark load failed:', e);
+        }
+
+        try {
             const userResponse = await api.get('/users/current-user');
             const currentUser = userResponse.data.data;
 
-            // 2. Set the real user data (fallback to generated avatar if they don't have one)
             let formattedName = currentUser.username || 'Learner';
             if (formattedName.includes('@')) {
                 formattedName = formattedName.split('@')[0];
@@ -56,19 +64,12 @@ export default function ProfileScreen() {
                 email: currentUser.email,
                 avatar: currentUser.avatar?.url || `https://ui-avatars.com/api/?name=${formattedName}&background=7c3aed&color=fff`
             });
-
-            // 3. Load Bookmarks
-            const storedBookmarks = await AsyncStorage.getItem('bookmarks');
-            const bookmarksArray = storedBookmarks ? JSON.parse(storedBookmarks) : [];
-            setStats(prev => ({ ...prev, bookmarks: bookmarksArray.length }));
-
-        } catch (e) {
-            console.error('Failed to load profile data from API', e);
+        } catch (e: any) {
+            console.error('Profile API fetch failed:', e.message);
         } finally {
             setIsLoading(false);
         }
     };
-
 
     const handleUpdatePicture = () => {
         Alert.alert(
@@ -82,6 +83,26 @@ export default function ProfileScreen() {
         router.replace('/auth/login');
     };
 
+    const handleResetData = async () => {
+        Alert.alert(
+            'Reset App Data',
+            'This will clear all bookmarks and achievements. Are you sure?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Reset',
+                    style: 'destructive',
+                    onPress: async () => {
+                        await AsyncStorage.removeItem('bookmarks');
+                        await AsyncStorage.setItem('alert_fired', 'false');
+                        loadUserData();
+                        Alert.alert('Success', 'Local app data has been cleared!');
+                    }
+                }
+            ]
+        );
+    };
+
     if (isLoading) {
         return (
             <SafeAreaView style={styles.loaderContainer}>
@@ -92,7 +113,6 @@ export default function ProfileScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color="#111" />
@@ -104,7 +124,6 @@ export default function ProfileScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Profile Card */}
                 <View style={styles.profileCard}>
                     <View style={styles.avatarContainer}>
                         <Image source={{ uri: user.avatar }} style={styles.avatar} />
@@ -116,7 +135,6 @@ export default function ProfileScreen() {
                     <Text style={styles.email}>{user.email}</Text>
                 </View>
 
-                {/* Statistics Box */}
                 <Text style={styles.sectionTitle}>LEARNING STATISTICS</Text>
                 <View style={styles.statsContainer}>
                     <View style={styles.statBox}>
@@ -135,7 +153,6 @@ export default function ProfileScreen() {
                     </View>
                 </View>
 
-                {/* Settings Menu */}
                 <Text style={styles.sectionTitle}>SETTINGS</Text>
                 <TouchableOpacity style={styles.settingRow}>
                     <MaterialCommunityIcons name="bell-outline" size={24} color="#7c3aed" />
@@ -147,6 +164,15 @@ export default function ProfileScreen() {
                     <MaterialCommunityIcons name="shield-lock-outline" size={24} color="#7c3aed" />
                     <Text style={styles.settingText}>Privacy & Security</Text>
                     <MaterialCommunityIcons name="chevron-right" size={24} color="#ccc" />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={[styles.settingRow, { borderColor: '#fee2e2', backgroundColor: '#fff', marginTop: 20 }]} 
+                    onPress={handleResetData}
+                >
+                    <MaterialCommunityIcons name="refresh" size={24} color="#ef4444" />
+                    <Text style={[styles.settingText, { color: '#ef4444' }]}>Reset App Data</Text>
+                    <MaterialCommunityIcons name="chevron-right" size={24} color="#fee2e2" />
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>

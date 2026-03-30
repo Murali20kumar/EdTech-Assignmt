@@ -31,13 +31,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const login = async (newToken: string, refreshToken: string) => {
-        console.log(' TOKENS SAVED TO STORAGE');
         await storage.setTokens(newToken, refreshToken);
         setToken(newToken);
     };
 
     const logout = async () => {
-        console.log('TOKEN DELETED FROM STORAGE');
         await storage.removeToken();
         setToken(null);
     };

@@ -11,43 +11,34 @@ export default function CourseWebViewScreen() {
     const { token } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
-    // 1. Loading a local HTML template as requested by the rubric
     const customHtml = `
       <!DOCTYPE html>
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: -apple-system, sans-serif; padding: 20px; color: #333; background: #f7f5ff; }
-            h1 { color: #7c3aed; }
-            .video-placeholder { width: 100%; height: 200px; background: #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 20px; font-weight: bold; }
-            .token-box { background: #e0d4fc; padding: 12px; border-radius: 8px; font-size: 11px; word-break: break-all; margin-top: 20px; border: 1px dashed #7c3aed; }
+            body { font-family: -apple-system, sans-serif; padding: 20px; line-height: 1.6; color: #1e0a4a; background: #fff; }
+            h1 { font-size: 24px; margin-bottom: 10px; color: #7c3aed; }
+            .course-info { font-size: 14px; color: #9ca3af; margin-bottom: 24px; }
+            .content-box { background: #fbfaff; padding: 20px; border-radius: 12px; border: 1.5px solid #ede9ff; margin-bottom: 20px; }
+            .video-placeholder { background: #000; height: 200px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 20px; }
           </style>
         </head>
         <body>
           <h1>${title || 'Course Content'}</h1>
           <iframe width="100%" height="220" src="https://www.youtube.com/embed/aircAruvnKk" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 12px; margin-bottom: 20px;"></iframe>
-          <p>Welcome to the interactive course viewer! The native app passes authorization headers directly into this local shell to securely unlock the web content above.</p>
-          
-          <div id="auth-status" class="token-box">Waiting for Native App Header Token...</div>
-
+          <div class="content-box">
+            <p>Welcome to <strong>${title}</strong>. This content is being securely served via AI Learning's Encrypted Player.</p>
+          </div>
           <script>
-             // 2. Handling bidirectional communication from Native -> Web (Rubric Requirement)
-             document.addEventListener("message", function(event) {
+             window.addEventListener('message', function(event) {
                 const data = JSON.parse(event.data);
-                if (data.type === 'SET_AUTH_HEADER') {
-                    document.getElementById('auth-status').innerText = '✅ Secured by Native Token Header: \\n\\n' + data.token;
-                    
-                    // Respond back to Native App to prove bidirectional communication!
-                    window.ReactNativeWebView.postMessage("Webview successfully received the Auth Headers!");
-                }
              });
           </script>
         </body>
       </html>
     `;
 
-    // 3. Injecting the header payload into the webview the exact second it loads
     const injectedScript = `
         setTimeout(() => {
             document.getElementById('auth-status').innerText = '✅ Secured by Native Token Header:\\n\\n${token}';
@@ -81,7 +72,6 @@ export default function CourseWebViewScreen() {
                 domStorageEnabled={true}
                 allowsInlineMediaPlayback={true}
                 onMessage={(event) => {
-                    // Logging the webview's reply to prove communication
                     console.log("Message from HTML WebView:", event.nativeEvent.data);
                 }}
                 onLoadEnd={() => setIsLoading(false)}
